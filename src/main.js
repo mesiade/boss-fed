@@ -7,7 +7,9 @@ import store from './store'
 import ElementUI from 'element-ui'
 
 // 引入 Element主题文件
-import 'element-ui/lib/theme-chalk/index.css'
+// import 'element-ui/lib/theme-chalk/index.css'
+// 引入自定义的全局样式文件
+import './styles/index.scss'
 
 // 将ElementUI注册为Vue插件
 Vue.use(ElementUI)
