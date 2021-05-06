@@ -1,9 +1,7 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <h1>lagoujiaoyu</h1>
-      <!-- 根路由出口 -->
-    </div>
+    <h1>lagoujiaoyu</h1>
+    <!-- 根路由出口 -->
     <router-view/>
   </div>
 </template>
