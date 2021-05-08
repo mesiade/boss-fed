@@ -72,13 +72,6 @@ export default {
         // 2. 发送请求
         this.isLoginLoading = true
 
-        // const { data } = await request({
-        //   method: 'POST',
-        //   url: '/front/user/login',
-        //   // urlencoded
-        //   data: qs.stringify(this.form)
-        // })
-
         const { data } = await login(this.form)
 
         this.isLoginLoading = false
@@ -89,7 +82,11 @@ export default {
           this.$router.push({
             name: 'home'
           })
+
           this.$message.success('登录成功')
+
+          // 将用户信息存储在vuex中
+          this.$store.commit('setUser', data.content)
         } else {
           this.$message.error('登录失败')
         }
