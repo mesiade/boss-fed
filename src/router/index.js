@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '@/store/index'
 
 Vue.use(VueRouter)
 
-// 路由规则
+// 路由规则(添加需要认证的requiresAuth信息)
 const routes = [
   {
     path: '/login',
@@ -13,6 +14,9 @@ const routes = [
   {
     path: '/',
     component: () => import(/* webpackChunkName: 'layout' */'@/views/layout/index'),
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: '',
@@ -65,6 +69,22 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+// 导航守卫
+router.beforeEach((to, from, next) => {
+  // 验证to路由是否需要身份验证
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // 验证vuex store中的登录用户信息是否存在
+    if (!store.state.user) {
+      // 未登录跳转到登录页
+      return next({ name: 'login' })
+    }
+    // 已经登录
+    next()
+  } else {
+    next()
+  }
 })
 
 export default router
