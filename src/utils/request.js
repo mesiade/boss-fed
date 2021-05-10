@@ -2,8 +2,11 @@ import axios from 'axios'
 // 引入vuex的数据
 import store from '@/store'
 // 通过局部引入方式引入 Element 的 Message 组件功能
-
 import { Message } from 'element-ui'
+// 引入 router
+import router from '@/router'
+// 引入 QS
+import qs from 'qs'
 
 const request = axios.create({
 //   timeout: 5000
@@ -15,6 +18,16 @@ function getBaseUrl (url) {
   } else {
     return 'http://edufront.lagou.com'
   }
+}
+
+function redirectLogin () {
+  router.push({
+    name: 'Login',
+    query: {
+      // currentRoute 就是存储了路由信息的对象
+      redirect: router.currentRoute.fullPath
+    }
+  })
 }
 
 // 创建请求拦截器
@@ -38,14 +51,44 @@ request.interceptors.response.use(function (response) {
 }, function (error) {
   if (error.response) {
     // 请求发送成功，响应接受完毕，但状态码为失败的情况
-    // 1. 判断失败的状态码情况（主要处理 401 的情况）
+    // 判断失败的状态码情况（主要处理 401 的情况）
     const { status } = error.response
     let errorMessage = ''
     if (status === 400) {
       errorMessage = '请求参数错误'
     } else if (status === 401) {
-      // 2. Token无效（过期）处理
-      errorMessage = 'Token 无效'
+      // 1. 无 Token 信息
+      if (!store.state.user) {
+        // 跳转登录页
+        redirectLogin()
+        return Promise.reject(error)
+      }
+      // 2. Token 无效（错误 Token，过期 Token)
+      // 发送请求，获取新的 access_token
+      request({
+        method: 'POST',
+        url: '/front/user/refresh_token',
+        data: qs.stringify({
+          refreshtoken: store.state.user.refresh_token
+        })
+      }).then(res => {
+        // 刷新token失败
+        if (res.data.state !== 1) {
+          // 清除无效的用户信息
+          store.commit('setUser', null)
+          // 跳转到登录页
+          redirectLogin()
+          return Promise.reject(error)
+        }
+        // 刷新token成功
+        // - 存储新的token
+        store.commit('setUser', res.data.content)
+        // - 重新发送失败的请求
+        // - error.config 本次失败的请求的配置对象
+        request(error.config)
+      }).catch(err => {
+        console.log(err)
+      })
     } else if (status === 403) {
       errorMessage = '没有权限，请联系管理员'
     } else if (status === 404) {
