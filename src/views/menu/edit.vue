@@ -1,7 +1,6 @@
 <template>
-  <div class="menu-create">
-    <!-- 将添加功能封装到了单独组件 ./components/CreatOrEdit.vue中 -->
-    <create-or-edit></create-or-edit>
+  <div class="menu-edit">
+      <create-or-edit :is-edit="true"></create-or-edit>
   </div>
 </template>
 
@@ -9,7 +8,7 @@
 import CreateOrEdit from './components/CreatOrEdit'
 
 export default {
-  name: 'MenuCreate',
+  name: 'MenuEdit',
   components: {
     CreateOrEdit
   }
