@@ -3,18 +3,18 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <!-- 使用form组件：行内表达 -->
-        <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form :inline="true" :model="form" class="demo-form-inline">
           <el-form-item label="审批人">
-            <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+            <el-input v-model="form.user" placeholder="审批人"></el-input>
           </el-form-item>
           <el-form-item label="活动区域">
-            <el-select v-model="formInline.region" placeholder="活动区域">
+            <el-select v-model="form.region" placeholder="活动区域">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">查询</el-button>
+            <el-button type="primary">查询</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -63,6 +63,18 @@
             </template>
            </el-table-column>
         </el-table>
+
+        <!-- 分页组件结构 -->
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="form.current"
+          :page-sizes="[10, 15, 20]"
+          :page-size="form.size"
+          layout="total, prev, pager, next"
+          :total="totalCount">
+        </el-pagination>
+
       </div>
     </el-card>
   </div>
@@ -75,7 +87,13 @@ export default {
   name: 'ResourceList',
   data () {
     return {
-      formInline: {},
+      form: {
+        // 当前显示的页号
+        current: 1,
+        // 每页显示的数据条数
+        size: 10
+      },
+      totalCount: 0,
       // 用于存储资源列表数据
       resources: []
     }
@@ -85,9 +103,13 @@ export default {
   },
   methods: {
     async loadResources () {
-      const { data } = await getResourcePages({})
+      const { data } = await getResourcePages({
+        current: this.form.current,
+        size: this.form.size
+      })
       if (data.code === '000000') {
         this.resources = data.data.records
+        this.totalCount = data.data.total
       }
     },
     handleEdit () {
@@ -95,6 +117,18 @@ export default {
     },
     handelDelete () {
 
+    },
+    // 每页显示条数变化时触发
+    handleSizeChange (val) {
+      this.form.size = val
+      // 由于修改了每页显示的条数，应当将页数还原为默认值 1
+      this.form.current = 1
+      this.loadResources()
+    },
+    // 页号改变触发
+    handleCurrentChange (val) {
+      this.form.current = val
+      this.loadResources()
     }
   },
   filters: {
