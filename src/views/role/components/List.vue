@@ -18,7 +18,7 @@
         </el-form>
       </div>
 
-      <el-button>添加角色</el-button>
+      <el-button @click="dialogVisible = true">添加角色</el-button>
 
       <el-table
         :data="roles"
@@ -67,11 +67,24 @@
         </el-table-column>
       </el-table>
 
+      <!-- 添加角色对话框 -->
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogVisible"
+        width="30%">
+        <!-- 将添加与编辑功能单独封装到组件中 -->
+        <create-or-edit
+          @success="handleSuccess"
+          @cancel="handleCancel"
+        ></create-or-edit>
+      </el-dialog>
+
     </el-card>
   </div>
 </template>
 
 <script>
+import CreateOrEdit from './CreateOrEdit'
 // 引入请求方法
 import { getRoles, deleteRole } from '@/services/role'
 
@@ -83,13 +96,28 @@ export default {
         name: ''
       },
       isLoading: false,
-      roles: []
+      roles: [],
+      // 控制对话框显示
+      dialogVisible: false
     }
+  },
+  components: {
+    CreateOrEdit
   },
   created () {
     this.loadRoles()
   },
   methods: {
+    // 监听子组件的添加状态，成功时触发
+    handleSuccess () {
+      // 隐藏对话框
+      this.dialogVisible = false
+      // 刷新列表
+      this.loadRoles()
+    },
+    handleCancel () {
+      this.dialogVisible = false
+    },
     onSubmit () {
 
     },
