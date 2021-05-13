@@ -48,3 +48,14 @@ export const allocateRoleMenus = data => {
     url: '/boss/menu/allocateRoleMenus'
   })
 }
+
+// 获取当前角色拥有的菜单列表接口
+export const getRoleMenus = roleId => {
+  return request({
+    method: 'GET',
+    url: '/boss/menu/getRoleMenus',
+    params: {
+      roleId
+    }
+  })
+}
