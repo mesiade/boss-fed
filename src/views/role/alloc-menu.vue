@@ -11,10 +11,13 @@
         default-expand-all
       ></el-tree>
       <div style="margin: 20px"></div>
-      <el-button>清空</el-button>
+      <el-button
+        @click="onReset"
+      >清空</el-button>
       <el-button
         type="primary"
-        @click="onSave">保存</el-button>
+        @click="onSave"
+      >保存</el-button>
     </el-card>
   </div>
 </template>
@@ -88,6 +91,9 @@ export default {
           name: 'role'
         })
       }
+    },
+    onReset () {
+      this.$refs['menu-tree'].setCheckedKeys([])
     }
   }
 }
