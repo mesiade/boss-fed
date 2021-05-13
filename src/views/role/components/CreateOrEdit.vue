@@ -8,23 +8,41 @@
         <el-input v-model="role.code"></el-input>
       </el-form-item>
       <el-form-item label="角色描述">
-        <el-input v-model="role.description" type="textarea"></el-input>
+        <el-input
+          v-model="role.description"
+          type="textarea"
+        ></el-input>
       </el-form-item>
-      <el-from-item>
+      <el-form-item>
         <el-button @click="onCancel">取消</el-button>
         <el-button
           type="primary"
           @click="onSubmit">确认</el-button>
-      </el-from-item>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import { createOrUpdateRole } from '@/services/role'
+import { createOrUpdateRole, getRoleById } from '@/services/role'
 
 export default {
   name: 'CreateOrEdit',
+  props: {
+    isEdit: {
+      type: Boolean,
+      default: false
+    },
+    roleId: {
+      type: [Number, String]
+    }
+  },
+  created () {
+    if (this.isEdit) {
+      console.log('edit')
+      this.loadRole()
+    }
+  },
   data () {
     return {
       role: {
@@ -49,6 +67,20 @@ export default {
     onCancel () {
       this.$emit('cancel')
       this.role = {}
+    },
+    async loadRole () {
+      console.log('request role id ' + this.roleId)
+      const { data } = await getRoleById(this.roleId)
+      if (data.code === '000000') {
+        console.log(data)
+        this.role = data.data
+      }
+    },
+    checkRoleStatus () {
+      if (this.isEdit) {
+        console.log('edit')
+        this.loadRole()
+      }
     }
   }
 }

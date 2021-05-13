@@ -18,7 +18,7 @@
         </el-form>
       </div>
 
-      <el-button @click="dialogVisible = true">添加角色</el-button>
+      <el-button @click="handleAdd">添加角色</el-button>
 
       <el-table
         :data="roles"
@@ -69,13 +69,17 @@
 
       <!-- 添加角色对话框 -->
       <el-dialog
-        title="提示"
+        :title="isEdit ? '编辑角色' : '添加角色'"
         :visible.sync="dialogVisible"
+        @opened="handleOpen"
         width="30%">
         <!-- 将添加与编辑功能单独封装到组件中 -->
         <create-or-edit
+          :is-edit="isEdit"
+          :role-id="roleId"
           @success="handleSuccess"
           @cancel="handleCancel"
+          ref="createOrEdit"
         ></create-or-edit>
       </el-dialog>
 
@@ -98,7 +102,11 @@ export default {
       isLoading: false,
       roles: [],
       // 控制对话框显示
-      dialogVisible: false
+      dialogVisible: false,
+      // 控制对话框的功能状态
+      isEdit: false,
+      // 存储正在编辑的角色 ID
+      roleId: ''
     }
   },
   components: {
@@ -108,6 +116,15 @@ export default {
     this.loadRoles()
   },
   methods: {
+    handleOpen () {
+      console.log(this.$refs, this.$refs.createOrEdit)
+      this.$refs.createOrEdit.checkRoleStatus()
+    },
+    // 点击添加按钮触发
+    handleAdd () {
+      this.dialogVisible = true
+      this.isEdit = false
+    },
     // 监听子组件的添加状态，成功时触发
     handleSuccess () {
       // 隐藏对话框
@@ -125,7 +142,10 @@ export default {
 
     },
     handleEdit (role) {
-
+      this.isEdit = true
+      this.roleId = role.id
+      this.dialogVisible = true
+      console.log('edit id ' + role.id)
     },
     handleDelete (role) {
       this.$confirm(`确认删除角色：${role.name}?`, '删除提示')
